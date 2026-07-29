@@ -178,7 +178,6 @@ struct ContentView: View {
         let errorMessage: String
         let lastUpdated: Date?
         
-        
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
                 
@@ -186,7 +185,8 @@ struct ContentView: View {
                     .font(.headline)
                 
                 if isLoading {
-                    HStack(spacing: 10) {
+                    
+                    HStack {
                         ProgressView()
                         
                         Text("Loading weather...")
@@ -194,35 +194,50 @@ struct ContentView: View {
                     }
                     
                 } else if !errorMessage.isEmpty {
+                    
                     Text(errorMessage)
                         .foregroundStyle(.red)
                     
                 } else if let weather {
-                    VStack(alignment: .leading, spacing: 8) {
+                    
+                    HStack {
                         
-                        Text(
-                            "Temperature: \(weather.temperature, specifier: "%.0f")°F"
-                        )
+                        VStack(alignment: .leading, spacing: 6) {
+                            
+                            Text("\(weather.temperature, specifier: "%.0f")°F")
+                                .font(.title)
+                                .bold()
+                            
+                            Text(weatherCondition(
+                                code: weather.weatherCode
+                            ))
+                            .foregroundStyle(.secondary)
+                        }
                         
-                        Text(
-                            "Wind Speed: \(weather.windSpeed, specifier: "%.1f") mph"
-                        )
+                        Spacer()
                         
-                        Text(
-                            "Weather Code: \(weather.weatherCode)"
-                        )
+                        VStack(alignment: .trailing, spacing: 6) {
+                            
+                            Image(systemName: "wind")
+                                .font(.title2)
+                            
+                            Text("\(weather.windSpeed, specifier: "%.1f") mph")
+                            
+                            Text("Wind")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     
-                } else {
-                    Text("Weather is unavailable.")
-                        .foregroundStyle(.secondary)
+                    if let lastUpdated {
+                        Text("Updated \(lastUpdated, style: .time)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
             .padding()
-            .frame(
-                maxWidth: .infinity,
-                alignment: .leading
-            )
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(.systemGray6))
             .cornerRadius(16)
         }
