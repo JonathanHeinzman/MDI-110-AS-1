@@ -24,6 +24,8 @@ class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
     // Tracks current permission state (.notdetermines, .denied, .authorized, .etc)
     @Published var authStatus: CLAuthorizationStatus = .notDetermined
     
+    // To show the location of the current coordinates
+    @Published var locationName: String = "Unknown Location"
     
     // Overide
     override init() {
@@ -105,6 +107,7 @@ class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         
     }
+    
     
     
 }

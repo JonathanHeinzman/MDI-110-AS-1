@@ -11,106 +11,225 @@ struct ContentView: View {
     @StateObject var viewModel: LocationViewModel = LocationViewModel()
     
     var body: some View {
-        VStack {
-            
-            Text("Nearby-Logs").font(.title)
-            
-            if viewModel.currentViewState == .needsPermission {
-
-                PermissionView(onEnable: {viewModel.enableLocationButton()})
-
-            }else if viewModel.currentViewState == .loading {
-                LoadingView()
+        ScrollView {
+            VStack(spacing: 20) {
                 
-            }else if viewModel.currentViewState == .ready {
-                LocationReadyView(
-                    latText: viewModel.latText,
-                    longText: viewModel.longText,
-                    onRefresh: {viewModel.refreshButton()},
-                    onSave: {viewModel.saveCheckInsButton()}
-                )
-            }else if viewModel.currentViewState == .failed {
-                FailedView(
-                    message: viewModel.errorMessage,
-                    tryAgain: {viewModel.enableLocationButton()}
-                )
-            }
-            
-            
-            CheckInListView(
-                checkIn: viewModel.checkIns,
-                onClearAll: {viewModel.clearAll()}
-            )
-        }
-        
-    }
-}
-
-
-
-struct FailedView: View {
-    
-    let message: String
-    let tryAgain: () -> Void
-    
-    var body: some View {
-        Text(message).foregroundColor(.red).bold()
-        
-        Button("Try Again"){
-            tryAgain()
-        }
-    }
-}
-
-struct LoadingView: View {
-    var body: some View {
-        VStack{
-            Text("Loading location").bold().foregroundColor(.blue).padding()
-            ProgressView().tint(.blue)
-        }
-        
-    }
-}
-
-struct CheckInListView: View {
-    let checkIn: [CheckIN]
-    let onClearAll: () -> Void
-    
-    var body: some View {
-        VStack{
-            HStack{
-                Text("Check-Ins").font(.headline).bold()
+                Text("Nearby-Logs")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.top)
                 
-                Button("Clear All"){
-                    onClearAll()
-                }
-                .disabled(checkIn.count == 0)
-                .buttonStyle(.borderedProminent)
-                
-                
-            }
-                
-            if checkIn.count == 0 {
-                Text("No Check-Ins")
-            } else {
-                List(checkIn){ item in
-                    
-                    VStack(spacing: 12){
-                        Text(item.date, style: .time)
-                        Text(item.date, style: .date)
+                Group {
+                    Text("Current Location")
+                        .font(.title2)
+                    if viewModel.currentViewState == .needsPermission {
                         
+                        PermissionView(
+                            onEnable: {
+                                viewModel.enableLocationButton()
+                            }
+                        )
                         
-                        Text("Latitude: \(String(format:"%0.5f",item.latitude))")
-                                                  
-                        Text("Longitude: \(String(format:"%0.5f",item.longitude))")
+                    } else if viewModel.currentViewState == .loading {
+                        
+                        LoadingView()
+                        
+                    } else if viewModel.currentViewState == .ready {
+                        
+                        VStack(spacing: 16) {
+                            
+                            LocationReadyView(
+                                latText: viewModel.latText,
+                                longText: viewModel.longText,
+                                onRefresh: {
+                                    viewModel.refreshButton()
+                                },
+                                onSave: {
+                                    viewModel.saveCheckInsButton()
+                                }
+                            )
+                            
+                            WeatherCardView(
+                                weather: viewModel.weather,
+                                isLoading: viewModel.isWeatherLoading,
+                                errorMessage: viewModel.weatherErrorMessage,
+                                lastUpdated: viewModel.lastUpdated
+                            )
+                        }
+                        
+                    } else if viewModel.currentViewState == .failed {
+                        
+                        FailedView(
+                            message: viewModel.errorMessage,
+                            tryAgain: {
+                                viewModel.enableLocationButton()
+                            }
+                        )
                     }
                 }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+                
+                CheckInListView(
+                    checkIn: viewModel.checkIns,
+                    onClearAll: {
+                        viewModel.clearAll()
+                    }
+                )
+            }
+            .padding()
+        }
+    }
+    
+    
+    struct FailedView: View {
+        
+        let message: String
+        let tryAgain: () -> Void
+        
+        var body: some View {
+            Text(message).foregroundColor(.red).bold()
+            
+            Button("Try Again"){
+                tryAgain()
             }
         }
     }
+    
+    struct LoadingView: View {
+        var body: some View {
+            VStack(spacing: 12) {
+                
+                ProgressView()
+                
+                Text("Loading Location...")
+                    .font(.headline)
+                    .foregroundStyle(.blue)
+            }
+            .padding()
+        }
+    }
+    
+    struct CheckInListView: View {
+        let checkIn: [CheckIN]
+        let onClearAll: () -> Void
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 12) {
+                
+                HStack {
+                    Text("Check-Ins")
+                        .font(.headline)
+                    
+                    Spacer()
+                    
+                    Button("Clear All") {
+                        onClearAll()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(checkIn.isEmpty)
+                }
+                
+                if checkIn.isEmpty {
+                    
+                    Text("No Check-Ins")
+                        .foregroundStyle(.secondary)
+                    
+                } else {
+                    
+                    List(checkIn) { item in
+                        
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(item.date, style: .date)
+                                    .font(.headline)
+                                
+                                Spacer()
+                                
+                                Text(item.date, style: .time)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            
+                            Divider()
+                            
+                            Text("Latitude: \(String(format: "%.5f", item.latitude))")
+                            
+                            Text("Longitude: \(String(format: "%.5f", item.longitude))")
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .frame(height: 275)
+                    .listStyle(.plain)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(16)
+        }
+    }
+    
+    struct WeatherCardView: View {
+        
+        let weather: CurrentWeather?
+        let isLoading: Bool
+        let errorMessage: String
+        let lastUpdated: Date?
+        
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 12) {
+                
+                Text("Current Weather")
+                    .font(.headline)
+                
+                if isLoading {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                        
+                        Text("Loading weather...")
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                } else if !errorMessage.isEmpty {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                    
+                } else if let weather {
+                    VStack(alignment: .leading, spacing: 8) {
+                        
+                        Text(
+                            "Temperature: \(weather.temperature, specifier: "%.0f")°F"
+                        )
+                        
+                        Text(
+                            "Wind Speed: \(weather.windSpeed, specifier: "%.1f") mph"
+                        )
+                        
+                        Text(
+                            "Weather Code: \(weather.weatherCode)"
+                        )
+                    }
+                    
+                } else {
+                    Text("Weather is unavailable.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .frame(
+                maxWidth: .infinity,
+                alignment: .leading
+            )
+            .background(Color(.systemGray6))
+            .cornerRadius(16)
+        }
+    }
 }
-
-
+    
+    
 #Preview {
     ContentView()
 }

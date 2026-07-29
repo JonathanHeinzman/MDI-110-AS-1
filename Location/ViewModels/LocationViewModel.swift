@@ -32,9 +32,17 @@ class LocationViewModel: ObservableObject {
     @Published var errorMessage: String = ""
     @Published var checkIns: [CheckIN] = []
     
+    // For Weather
+    @Published var weather: CurrentWeather?
+    @Published var weatherErrorMessage: String = ""
+    @Published var isWeatherLoading: Bool = false
+    @Published var lastUpdated: Date?
     
     // CALL OUR SERVICE
     var locationService: LocationService = LocationService()
+    
+    // CALL THE WEATHER SERVICE
+    var weatherService: WeatherService = WeatherService()
     
     
     // CANCELLABLE -> Cancels processes
@@ -99,6 +107,12 @@ class LocationViewModel: ObservableObject {
             
             self.currentViewState = .ready
             
+            // Weather for the current location
+            
+            Task{
+                await self.fetchWeather(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            }
+            
             return
         }
         
@@ -137,7 +151,40 @@ class LocationViewModel: ObservableObject {
         locationService.requestPermissionAndLocation()
     }
     
-    
+    // function to fetch the weather
+    func fetchWeather(
+
+        latitude: Double,
+        longitude: Double
+    ) async {
+        
+        await MainActor.run {
+            self.isWeatherLoading = true
+            self.weatherErrorMessage = ""
+        }
+        
+        do {
+            let currentWeather: CurrentWeather =
+                try await self.weatherService.fetchWeather(
+                    latitude: latitude,
+                    longitude: longitude
+                )
+            
+            await MainActor.run {
+                self.weather = currentWeather
+                self.lastUpdated = Date()
+                self.isWeatherLoading = false
+            }
+            
+        } catch {
+            await MainActor.run {
+                self.weatherErrorMessage =
+                    error.localizedDescription
+                
+                self.isWeatherLoading = false
+            }
+        }
+    }
     
     
     
