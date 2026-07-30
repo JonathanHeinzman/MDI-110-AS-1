@@ -188,38 +188,7 @@ class LocationViewModel: ObservableObject {
         }
     }
     
-    
-    func weatherCondition(
-            code: Int
-        ) -> String {
-            
-            switch code {
-            case 0:
-                return "Clear"
-                
-            case 1...3:
-                return "Cloudy"
-                
-            case 45, 48:
-                return "Foggy"
-                
-            case 51...67:
-                return "Rain"
-                
-            case 71...77:
-                return "Snow"
-                
-            case 80...82:
-                return "Rain Showers"
-                
-            case 95...99:
-                return "Thunderstorm"
-                
-            default:
-                return "Unknown"
-            }
-        }
-    
+   
     
 }
 
