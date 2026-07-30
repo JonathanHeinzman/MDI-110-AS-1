@@ -125,9 +125,11 @@ class LocationViewModel: ObservableObject {
     func saveCheckInsButton() {
         if self.locationService.location == nil {return}
         
+        if weather == nil {return}
+        
         let coordinate: CLLocationCoordinate2D = self.locationService.location!
         
-        let newCoord: CheckIN = CheckIN(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let newCoord: CheckIN = CheckIN(latitude: coordinate.latitude, longitude: coordinate.longitude, checkInWeather: weather!)
     
         self.checkIns.insert(newCoord, at: 0)
         
@@ -187,36 +189,7 @@ class LocationViewModel: ObservableObject {
     }
     
     
-    func weatherCondition(
-            code: Int
-        ) -> String {
-            
-            switch code {
-            case 0:
-                return "Clear"
-                
-            case 1...3:
-                return "Cloudy"
-                
-            case 45, 48:
-                return "Foggy"
-                
-            case 51...67:
-                return "Rain"
-                
-            case 71...77:
-                return "Snow"
-                
-            case 80...82:
-                return "Rain Showers"
-                
-            case 95...99:
-                return "Thunderstorm"
-                
-            default:
-                return "Unknown"
-            }
-        }
+  
     
     
 }

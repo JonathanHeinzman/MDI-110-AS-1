@@ -53,7 +53,8 @@ struct ContentView: View {
                                 weather: viewModel.weather,
                                 isLoading: viewModel.isWeatherLoading,
                                 errorMessage: viewModel.weatherErrorMessage,
-                                lastUpdated: viewModel.lastUpdated
+                                lastUpdated: viewModel.lastUpdated,
+//                                weatherCode: viewModel.weather?.weatherCode
                             )
                         }
                         
@@ -150,6 +151,7 @@ struct ContentView: View {
                                 
                                 Text(item.date, style: .time)
                                     .foregroundStyle(.secondary)
+                                
                             }
                             
                             
@@ -158,6 +160,8 @@ struct ContentView: View {
                             Text("Latitude: \(String(format: "%.5f", item.latitude))")
                             
                             Text("Longitude: \(String(format: "%.5f", item.longitude))")
+                            
+                            Text(String(item.checkInWeather.temperature))
                         }
                         .padding(.vertical, 4)
                     }
@@ -173,10 +177,13 @@ struct ContentView: View {
     
     struct WeatherCardView: View {
         
+//        @StateObject var viewModel: LocationViewModel = LocationViewModel()
+        
         let weather: CurrentWeather?
         let isLoading: Bool
         let errorMessage: String
         let lastUpdated: Date?
+        let weatherCode: String
         
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
@@ -208,7 +215,7 @@ struct ContentView: View {
                                 .font(.title)
                                 .bold()
                             
-                            Text(weatherCondition(
+                            Text((
                                 code: weather.weatherCode
                             ))
                             .foregroundStyle(.secondary)

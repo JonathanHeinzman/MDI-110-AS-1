@@ -14,12 +14,13 @@ struct CheckIN: Identifiable{
     let date: Date = Date()
     let latitude: Double
     let longitude: Double
+    let checkInWeather: CurrentWeather
     
-    init(latitude: Double, longitude: Double) {
+    init(latitude: Double, longitude: Double, checkInWeather: CurrentWeather) {
         self.id = UUID()
         self.latitude = latitude
         self.longitude = longitude
-        
+        self.checkInWeather = checkInWeather
     }
 }
  
