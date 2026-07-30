@@ -54,7 +54,7 @@ struct ContentView: View {
                                 isLoading: viewModel.isWeatherLoading,
                                 errorMessage: viewModel.weatherErrorMessage,
                                 lastUpdated: viewModel.lastUpdated,
-//                                weatherCode: viewModel.weather?.weatherCode
+                                weatherCode: viewModel.weather?.weatherCode
                             )
                         }
                         
@@ -177,7 +177,7 @@ struct ContentView: View {
     
     struct WeatherCardView: View {
         
-//        @StateObject var viewModel: LocationViewModel = LocationViewModel()
+        @StateObject var viewModel: LocationViewModel = LocationViewModel()
         
         let weather: CurrentWeather?
         let isLoading: Bool
@@ -215,10 +215,10 @@ struct ContentView: View {
                                 .font(.title)
                                 .bold()
                             
-                            Text((
-                                code: weather.weatherCode
-                            ))
-                            .foregroundStyle(.secondary)
+//                            Text((
+//                                code: weather.weatherCode
+//                            ))
+//                            .foregroundStyle(.secondary)
                         }
                         
                         Spacer()
